@@ -9,8 +9,10 @@ export default function DesktopGate({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [qr, setQr] = useState<string | null>(null);
   const [href, setHref] = useState("");
+  const [bypass, setBypass] = useState(false);
 
   useEffect(() => {
+    setBypass(sessionStorage.getItem("vt_desktop_bypass") === "1");
     const url = window.location.href;
     setHref(url);
     QRCode.toDataURL(url, {
@@ -22,6 +24,14 @@ export default function DesktopGate({ children }: { children: React.ReactNode })
       .then(setQr)
       .catch(() => setQr(null));
   }, [pathname]);
+
+  if (bypass) {
+    return (
+      <div className="mx-auto min-h-screen w-full lg:max-w-[430px] lg:border-x lg:border-line">
+        {children}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -83,6 +93,16 @@ export default function DesktopGate({ children }: { children: React.ReactNode })
               <p className="mt-3 text-center text-[10px] uppercase tracking-[0.25em] text-faint">
                 扫码转移 · 手机继续
               </p>
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem("vt_desktop_bypass", "1");
+                  setBypass(true);
+                }}
+                className="mt-6 block w-full border border-line px-3 py-2 text-[10px] uppercase tracking-[0.25em] text-ash transition-colors hover:border-seal hover:text-bone"
+              >
+                本局特批 · 桌面端受理（受限视图）
+              </button>
             </div>
           </div>
         </div>

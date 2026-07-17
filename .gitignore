@@ -1,5 +1,33 @@
-.gstack/
-.superpowers/
-Documents/
-node_modules/
-.env*
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# runtime data (db + agent workspaces)
+/data
+
+# misc
+.DS_Store
+*.pem
+.vscode
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env
+.env*.local
+.env
+
+# tsc incremental cache
+tsconfig.tsbuildinfo

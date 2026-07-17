@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Masthead from "@/components/Masthead";
+import Seal from "@/components/Seal";
 import { apiPost } from "@/lib/clientApi";
+import { TOKENS_PER_ATTENTION_SECOND } from "@/lib/config";
 import { formatSeconds } from "@/lib/format";
 import type { TaskState } from "@/lib/viewTypes";
 
@@ -11,7 +14,7 @@ interface Props {
   onChanged: () => Promise<unknown>;
 }
 
-export default function QuoteView({ state, onChanged }: Props) {
+export default function QuoteView({ token, state, onChanged }: Props) {
   const { task, pool } = state;
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,50 +32,80 @@ export default function QuoteView({ state, onChanged }: Props) {
   }
 
   return (
-    <section className="flex flex-col gap-5 pt-6">
-      <h1 className="text-xs uppercase tracking-[0.3em] opacity-60">交换报价</h1>
+    <section>
+      <Masthead
+        code="B-02"
+        title="交换报价与征召令"
+        serial={token}
+        stamp={<Seal text="待接受" sub="QUOTED" />}
+      />
 
       {task.prompt && (
-        <div className="border border-neutral-800 p-3">
-          <p className="text-[11px] uppercase tracking-widest opacity-40">
-            Agent 复述任务
+        <div className="mt-6 border border-line bg-paper p-3">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-faint">
+            本局复核 · 申请事项
           </p>
-          <p className="mt-2 text-sm leading-relaxed">{task.prompt}</p>
+          <p className="mt-2 text-sm leading-relaxed text-bone">{task.prompt}</p>
         </div>
       )}
 
-      <dl className="divide-y divide-neutral-800 border border-neutral-800 text-sm">
-        <div className="flex justify-between p-3">
-          <dt className="opacity-60">预计机器劳动</dt>
-          <dd>{formatSeconds(task.quoteLaborSecondsEst)}</dd>
-        </div>
-        <div className="flex justify-between p-3">
-          <dt className="opacity-60">需要人类注意力</dt>
-          <dd>{formatSeconds(pool.requiredSeconds)}</dd>
-        </div>
+      <p className="mt-6 text-[10px] uppercase tracking-[0.28em] text-faint">
+        交换条款
+      </p>
+      <dl className="mt-2 flex flex-col border-y border-line">
+        <Term k="预计机器劳动" v={formatSeconds(task.quoteLaborSecondsEst)} />
+        <Term k="应付人类注意力" v={formatSeconds(pool.requiredSeconds)} emphasize />
+        <Term k="兑换率" v={`1 秒注意力 ⇄ ${TOKENS_PER_ATTENTION_SECOND} tokens`} />
       </dl>
 
       {task.quoteSummary && (
-        <p className="text-xs leading-relaxed opacity-50">{task.quoteSummary}</p>
+        <p className="mt-4 text-xs leading-relaxed text-ash">{task.quoteSummary}</p>
       )}
 
-      <p className="border-l-2 border-neutral-600 pl-3 text-xs leading-relaxed opacity-70">
-        声明：机器劳动真实发生、过程可追踪，但结果不保证令人满意。接受即开始交易。
+      <p className="mt-5 border-l-2 border-seal pl-3 text-xs leading-relaxed text-ash">
+        声明：机器劳动真实发生、过程可追踪，结果不予担保。
+        <span className="text-bone">钤印即开始交易，注意力开始计价。</span>
       </p>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-4 text-xs text-sealbright">受召失败：{error}</p>
+      )}
 
       {task.isCreator ? (
         <button
           onClick={accept}
           disabled={accepting}
-          className="border border-neutral-500 py-3 text-sm tracking-widest disabled:opacity-30"
+          className="mt-6 w-full border border-ash py-3 text-sm tracking-[0.22em] text-bone transition-colors hover:border-bone disabled:cursor-not-allowed disabled:border-line disabled:text-faint"
         >
-          {accepting ? "征召中…" : "接受报价，开始交易"}
+          {accepting ? "征召中…" : "受召 · 接受报价并开始交易"}
         </button>
       ) : (
-        <p className="text-xs opacity-50">仅任务发起人可接受报价。</p>
+        <p className="mt-6 border border-line p-3 text-xs text-ash">
+          你并非本文书发起人。仅发起人可钤印受召。
+        </p>
       )}
     </section>
+  );
+}
+
+function Term({
+  k,
+  v,
+  emphasize,
+}: {
+  k: string;
+  v: string;
+  emphasize?: boolean;
+}) {
+  return (
+    <div className="flex items-baseline border-b border-line py-3 last:border-b-0 text-sm">
+      <span className="text-ash">{k}</span>
+      <span className="leader" />
+      <span
+        className={`figure tracking-[0.08em] ${emphasize ? "text-sealbright" : "text-bone"}`}
+      >
+        {v}
+      </span>
+    </div>
   );
 }

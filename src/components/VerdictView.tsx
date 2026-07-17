@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ArtifactPreview from "@/components/ArtifactPreview";
+import Masthead from "@/components/Masthead";
+import Seal from "@/components/Seal";
 import { apiGet, apiPost } from "@/lib/clientApi";
 import { statusLabel } from "@/lib/format";
 import type { Bill, TaskState } from "@/lib/viewTypes";
@@ -41,23 +43,34 @@ export default function VerdictView({ token, state, onChanged }: Props) {
   const succeeded = task.status === "succeeded";
 
   return (
-    <section className="flex flex-col gap-5 pt-6">
-      <h1 className="text-xs uppercase tracking-[0.3em] opacity-60">
-        交付与裁决 · {statusLabel(task.status)}
-      </h1>
+    <section>
+      <Masthead
+        code="D-04"
+        title="交付裁决书"
+        serial={token}
+        stamp={
+          <Seal
+            text={succeeded ? "已交付" : "执行失败"}
+            sub={statusLabel(task.status)}
+          />
+        }
+      />
 
       {task.errorMessage && (
-        <p className="border-l-2 border-red-700 pl-3 text-xs leading-relaxed opacity-80">
-          {task.errorMessage}（失败也是社会实验的结果，已如实记账）
+        <p className="mt-6 border-l-2 border-seal pl-3 text-xs leading-relaxed text-ash">
+          {task.errorMessage}
+          <span className="mt-1 block text-faint">
+            失败亦是社会实验的结果，已如实归档。
+          </span>
         </p>
       )}
 
-      <div className="border border-neutral-800 p-3">
-        <p className="text-[11px] uppercase tracking-widest opacity-40">
-          机器交付的结果
+      <div className="mt-6 border border-line bg-paper p-3">
+        <p className="text-[10px] uppercase tracking-[0.28em] text-faint">
+          机器交付物
         </p>
         {artifacts.length > 0 ? (
-          <div className="mt-2 flex flex-col gap-3">
+          <div className="mt-3 flex flex-col gap-3">
             {artifacts.map((a) => (
               <ArtifactPreview
                 key={a.id}
@@ -69,10 +82,10 @@ export default function VerdictView({ token, state, onChanged }: Props) {
             ))}
           </div>
         ) : (
-          <div className="mt-2 text-xs opacity-70">
+          <div className="mt-2 text-xs leading-relaxed text-ash">
             {succeeded ? "本次未产出文件。" : "未产出可交付文件。"}
             {run && run.latestEvents.length > 0 && (
-              <ul className="mt-2 flex flex-col gap-1">
+              <ul className="mt-2 flex flex-col gap-1 font-mono text-faint">
                 {run.latestEvents
                   .filter((e) => e.kind === "text")
                   .map((e, i) => (
@@ -85,44 +98,49 @@ export default function VerdictView({ token, state, onChanged }: Props) {
       </div>
 
       {task.verdict ? (
-        <div className="border border-neutral-700 p-3 text-sm">
-          你的裁决：
-          <span className="ml-2 tracking-widest">
-            {task.verdict === "worth" ? "值得" : "不值得"}
+        <div className="mt-6 flex items-center justify-between border border-line p-4">
+          <span className="text-xs uppercase tracking-[0.28em] text-faint">
+            人类裁决 · 已钤印
           </span>
+          <Seal
+            text={task.verdict === "worth" ? "值得" : "不值得"}
+            sub="SEALED"
+          />
         </div>
       ) : task.isCreator ? (
-        <div className="flex flex-col gap-3">
-          <p className="text-sm leading-relaxed">
+        <div className="mt-6">
+          <p className="text-sm leading-relaxed text-bone">
             机器交付的结果，值得你付出的注意力吗？
           </p>
-          {error && <p className="text-xs text-red-400">{error}</p>}
-          <div className="grid grid-cols-2 gap-3">
+          {error && <p className="mt-2 text-xs text-sealbright">裁决失败：{error}</p>}
+          <div className="mt-3 grid grid-cols-2 gap-3">
             <button
               onClick={() => decide("worth")}
               disabled={submitting}
-              className="border border-neutral-500 py-3 text-sm tracking-widest disabled:opacity-30"
+              className="border border-ash py-3 text-sm tracking-[0.22em] text-bone transition-colors hover:border-bone disabled:cursor-not-allowed disabled:opacity-30"
             >
               值得
             </button>
             <button
               onClick={() => decide("not_worth")}
               disabled={submitting}
-              className="border border-neutral-500 py-3 text-sm tracking-widest disabled:opacity-30"
+              className="border border-seal py-3 text-sm tracking-[0.22em] text-sealbright transition-colors hover:bg-seal/10 disabled:cursor-not-allowed disabled:opacity-30"
             >
               不值得
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-xs opacity-50">等待任务发起人裁决。</p>
+        <p className="mt-6 border border-line p-3 text-xs text-ash">
+          等待本文书发起人裁决。
+        </p>
       )}
 
       <Link
         href={`/t/${token}/bill`}
-        className="border border-neutral-700 py-3 text-center text-sm tracking-widest"
+        className="mt-6 block border border-line py-3 text-center text-sm tracking-[0.22em] text-ash transition-colors hover:border-ash hover:text-bone"
       >
-        查看公开人机劳动账单
+        调阅公开人机劳动账单
       </Link>
     </section>
   );

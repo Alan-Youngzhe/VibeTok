@@ -1,13 +1,145 @@
 @import "tailwindcss";
 
+/* VibeTok 视觉系统：注意力劳动管理局 · 冷峻官僚文书
+   基调参考《1984》——公事化、去情绪、单一印章红。
+   禁止：金币 / 庆祝动画 / 可爱游戏化 / emoji 堆砌 / 蓝紫渐变 / 居中对称 AI 风。 */
+
+@theme {
+  --color-ink: #0a0a0b;
+  --color-paper: #111110;
+  --color-bone: #c9c6bd;
+  --color-ash: #7c7970;
+  --color-faint: #4d4a43;
+  --color-line: #2a2822;
+  --color-seal: #9b2f26;
+  --color-sealbright: #c24a3d;
+
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+}
+
 :root {
-  --background: #0e0e0e;
-  --foreground: #d8d8d2;
+  color-scheme: dark;
 }
 
 html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+
+/* 全局纸面质感：极淡扫描线 + 顶部渐隐，不喧宾夺主 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.014) 0,
+    rgba(255, 255, 255, 0.014) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+.figure {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* 公文抬头下的双线 */
+.rule-double {
+  border-top: 1px solid var(--color-line);
+  box-shadow: 0 3px 0 -2px var(--color-line);
+}
+
+/* 点线引导：标签与数值之间的虚线（登记表质感） */
+.leader {
+  flex: 1 1 auto;
+  margin: 0 0.6rem;
+  border-bottom: 1px dotted var(--color-faint);
+  transform: translateY(-0.28em);
+}
+
+/* 官方印章：单色红、内圈、轻微旋转，取代任何庆祝动效 */
+.stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15em;
+  padding: 0.5rem 0.7rem;
+  border: 1.5px solid var(--color-seal);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--color-seal) 22%, transparent);
+  color: var(--color-sealbright);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  line-height: 1.15;
+  transform: rotate(-5deg);
+  opacity: 0.94;
+}
+
+.stamp-lg {
+  padding: 0.85rem 1.1rem;
+  letter-spacing: 0.3em;
+}
+
+/* 登记账簿的横向账线 */
+.ledger-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1.999rem,
+    var(--color-line) 1.999rem,
+    var(--color-line) 2rem
+  );
+}
+
+/* 存档水印：斜向重复文字条 */
+.watermark {
+  color: color-mix(in srgb, var(--color-seal) 40%, transparent);
+}
+
+/* 供养脉冲：低频、单调，非庆祝 */
+@keyframes supply-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.supply-pulse {
+  animation: supply-pulse 1.6s steps(2, end) infinite;
+}
+
+/* 监视器扫描线：缓慢纵向扫过，营造《1984》监控屏质感 */
+@keyframes scan-sweep {
+  0% {
+    transform: translateY(-10%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  88% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(1000%);
+    opacity: 0;
+  }
+}
+.scan-sweep {
+  animation: scan-sweep 5.5s linear infinite;
+}
+
+button {
+  cursor: pointer;
 }

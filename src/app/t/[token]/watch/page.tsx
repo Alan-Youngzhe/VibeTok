@@ -97,7 +97,7 @@ export default function WatchPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6 text-sm opacity-70">
+      <main className="flex min-h-[100dvh] items-center justify-center p-6 text-sm text-ash">
         {error}
       </main>
     );
@@ -107,30 +107,53 @@ export default function WatchPage() {
   const current = cards.length > 0 ? cards[cardIndex % cards.length] : null;
 
   return (
-    <main className="relative h-[100dvh] w-full overflow-hidden bg-black">
+    <main className="relative h-[100dvh] w-full overflow-hidden bg-ink">
       {current ? <ContentCard card={current} playing={!finished} /> : null}
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 p-4 text-xs">
-        <p className="tracking-widest opacity-90">
+      {/* 顶部：征用状态条 */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-4 pb-8">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.28em] text-bone/80">
+          <span>注意力征用 · C-03</span>
+          <span className="flex items-center gap-1.5">
+            <span
+              className={`inline-block h-1.5 w-1.5 rounded-full bg-seal ${finished ? "" : "supply-pulse"}`}
+            />
+            {finished ? "征用结束" : "计价中"}
+          </span>
+        </div>
+        <p className="mt-2 text-sm tracking-[0.06em] text-bone">
           {finished ? "机器劳动已结束。" : "AI 正在工作。人类请继续消费内容。"}
         </p>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-4 text-xs">
-        <div className="grid grid-cols-3 gap-px bg-neutral-800 text-center">
-          <Stat label="有效注意力" value={formatSeconds(effectiveSeconds)} />
-          <Stat label="赚取机器劳动" value={formatSeconds(laborSeconds)} />
-          <Stat label="兑换 tokens" value={formatNumber(exchangedTokens)} />
-        </div>
-        <p className="opacity-50">
-          实时消耗 {formatNumber(tokensTotal)} tokens · 前台可见才计时，切后台自动暂停
+      {/* 底部：兑换台账 */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pt-10">
+        <p className="text-[11px] leading-relaxed text-bone/85">
+          你已为 Agent 赚取{" "}
+          <span className="figure text-sealbright">{formatSeconds(laborSeconds)}</span>{" "}
+          机器劳动。
+          <br />
+          本段注意力已兑换为{" "}
+          <span className="figure text-sealbright">{formatNumber(exchangedTokens)}</span>{" "}
+          tokens。
         </p>
+
+        <div className="mt-3 grid grid-cols-3 border border-white/15 text-center">
+          <Stat label="有效注意力" value={formatSeconds(effectiveSeconds)} />
+          <Stat label="赚取机器劳动" value={formatSeconds(laborSeconds)} border />
+          <Stat label="兑换 tokens" value={formatNumber(exchangedTokens)} border />
+        </div>
+
+        <p className="mt-2 text-[10px] leading-relaxed text-bone/45">
+          实时消耗 {formatNumber(tokensTotal)} tokens · 前台可见才计价，切后台自动暂停。
+        </p>
+
         {finished && (
           <Link
             href={`/t/${token}`}
-            className="pointer-events-auto border border-neutral-500 bg-black/70 py-3 text-center tracking-widest"
+            className="pointer-events-auto mt-3 block border border-bone/50 bg-black/60 py-3 text-center text-sm tracking-[0.22em] text-bone"
           >
-            任务已完成，前往裁决
+            机器已停工 · 前往裁决
           </Link>
         )}
       </div>
@@ -138,11 +161,19 @@ export default function WatchPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  border,
+}: {
+  label: string;
+  value: string;
+  border?: boolean;
+}) {
   return (
-    <div className="bg-black/70 p-2">
-      <p className="opacity-40">{label}</p>
-      <p className="mt-1">{value}</p>
+    <div className={`bg-black/50 p-2 ${border ? "border-l border-white/15" : ""}`}>
+      <p className="text-[9px] tracking-[0.12em] text-bone/45">{label}</p>
+      <p className="mt-1 figure text-sm text-bone">{value}</p>
     </div>
   );
 }

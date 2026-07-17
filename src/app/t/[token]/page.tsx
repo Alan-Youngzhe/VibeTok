@@ -60,7 +60,7 @@ export default function TaskPage() {
 
   const status = state.task.status;
   return (
-    <main className="mx-auto min-h-screen max-w-md p-6">
+    <main className="mx-auto min-h-[100dvh] max-w-md px-6 pb-10">
       {status === "quoted" && (
         <QuoteView token={token} state={state} onChanged={load} />
       )}

@@ -1,0 +1,5 @@
+.gstack/
+.superpowers/
+Documents/
+node_modules/
+.env*
